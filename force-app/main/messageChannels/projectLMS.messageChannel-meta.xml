@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
+   <masterLabel>ProjectMessageChannel</masterLabel>
+   <isExposed>true</isExposed>
+   <description>This Lightning Message Channel sends information for Project Management</description>
+
+   <lightningMessageFields>
+       <fieldName>projectId</fieldName>
+       <description>message To Send</description>
+   </lightningMessageFields>
+   <lightningMessageFields>
+       <fieldName>milestoneId</fieldName>
+       <description>message To Send</description>
+   </lightningMessageFields>
+</LightningMessageChannel>

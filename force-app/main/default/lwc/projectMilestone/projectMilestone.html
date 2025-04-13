@@ -1,0 +1,32 @@
+<template>
+    <lightning-card  title="Milestones" icon-name="action:goal">
+       <lightning-button label="New Milestone" onclick={handleNewMilestone} slot="actions" variant="brand" disabled={newMilestoneDisabled}></lightning-button>
+       <template lwc:if={showDefaultMessage}>
+          <p class="slds-p-horizontal_small">{defaultMessage}</p>
+       </template>
+       <template if:false={showDefaultMessage}>
+         <div class="slds-is-relative" slot="footer">
+            <template if:true={showLoading}>
+               <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </template>
+           
+            <lightning-datatable key-field="Id"
+               data={data} 
+               columns={columns} 
+               onsave={handleSave}
+               draft-values={saveDraftValues}
+               onrowselection={handleRowSelection} 
+               max-row-selection="1">
+            </lightning-datatable>
+            <c-pagination
+               page-value={pageValue}
+               options={options}
+               onpagechange={handlePageChange}>
+            </c-pagination>
+         </div>
+       </template>
+    </lightning-card>
+    <template lwc:if={newMilestoneClicked}>
+       <c-create-update-milestone header-value={headerValue} create-flag={createFlag} project-id={projectId} onclose={handleClose}></c-create-update-milestone>
+    </template>
+ </template>

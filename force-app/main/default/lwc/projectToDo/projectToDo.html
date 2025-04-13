@@ -1,0 +1,32 @@
+<template>
+    <lightning-card  title="To Do List" icon-name="action:new_task">
+       <lightning-button label="New To-Do" onclick={handleNewToDo} slot="actions" variant="brand" disabled={newToDoDisabled}></lightning-button>
+       <template lwc:if={showDefaultMessage}>
+          <p class="slds-p-horizontal_small">{defaultMessage}</p>
+       </template>
+       <template if:false={showDefaultMessage}>
+         <div class="slds-is-relative" slot="footer">
+            <template if:true={showLoading}>
+               <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </template>
+            <lightning-datatable key-field="Id"
+               data={data} 
+               columns={columns} 
+               onsave={handleSave}
+               draft-values={saveDraftValues} 
+               max-row-selection="1">
+            </lightning-datatable>
+            <div class="slds-grid slds-grid_align-end slds-relative">
+               <c-pagination
+               page-value={pageValue}
+               options={options}
+               onpagechange={handlePageChange}>
+            </c-pagination>
+            </div>
+         </div>
+       </template>
+    </lightning-card>
+    <template lwc:if={newToDoClicked}>
+       <c-create-update-to-do header-value={headerValue} create-flag={createFlag} milestone-id={milestoneId} onclose={handleClose}></c-create-update-to-do>
+    </template>
+ </template>

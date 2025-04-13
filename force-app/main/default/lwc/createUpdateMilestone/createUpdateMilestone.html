@@ -1,0 +1,54 @@
+<!--
+@Description: This component handles both create and update operation on Project Milestone Records
+@Additional Details:
+1. This component has a modal.
+2. This component has a record edit form.
+-->
+<template>
+    <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+        <div class="slds-modal__header">
+        <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate" tabindex="-1">{headerValue}</h1>
+        </div>
+        <lightning-record-edit-form object-api-name="Project_Milestone__c" record-id={recordId} onsuccess={handleSuccess} onerror={handleError} onsubmit={runSpinner}>
+            <div class="slds-modal__content slds-p-around_medium  slds-is-relative" id="modal-content-id-1">
+                <template if:true={showLoading}>
+                    <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                </template>
+                <div class="slds-grid slds-wrap slds-gutters">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input-field field-name="Name" required> </lightning-input-field>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input-field field-name="Due_Date__c" required> </lightning-input-field>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input-field field-name="Status__c" disabled> </lightning-input-field>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input-field field-name="Complete__c" disabled> </lightning-input-field>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input-field field-name="Project__c" value={projectId} disabled> </lightning-input-field>
+                    </div>
+                </div>
+            </div>
+                <lightning-modal-footer>
+                    <lightning-button
+                        class="slds-button"
+                        variant="neutral"
+                        label="Cancel"
+                        onclick={handleCancel}
+                    ></lightning-button>
+                    <lightning-button
+                        class="slds-button slds-m-left_x-small"
+                        variant="brand"
+                        label="Save"
+                        type="submit"
+                    ></lightning-button>
+                </lightning-modal-footer>
+        </lightning-record-edit-form>
+        </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+</template>
