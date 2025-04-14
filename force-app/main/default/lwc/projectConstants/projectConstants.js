@@ -14,11 +14,17 @@ const getConstants = () =>{
         NEW_TITLE : 'New',
         UPDATE_TITLE : 'Update',
         EDIT_TITLE : 'Edit',
+        DELETE_TITLE : 'Delete',
+        DELETED  : 'Deleted',
         PROJECT : 'Project',
         MILESTONE : 'Project Milestone',
         TO_DO : 'To Do',
         SPACE_VAL: ' ',
         RECORDS_UPDATED_MESSAGE : 'Records updated successfully!',
+        PROJECT_DEL_MSG : 'Project deleted successfully!',
+        MILESTONE_DEL_MSG : 'Milestone deleted successfully!',
+        TO_DO_DEL_MSG : 'To-Do deleted successfully!',
+        DELETE_PERMISSION_MISSING : 'You don\'t have permission to delete this record',
         PROJECT_DATATABLE_COLUMNS : [
                                         { label: 'Project Name', fieldName: 'projectName' },
                                         { label: 'Description', fieldName: 'projectDescription' },
@@ -28,25 +34,47 @@ const getConstants = () =>{
                                         { label: 'Complete %', fieldName: 'projectComplete', type: 'percent',  
                                             cellAttributes: { alignment: 'left' }
                                         },
-                                        {   label:'Action',
+                                        {
                                             type: 'action',
                                             typeAttributes: {
-                                                rowActions: [{ label: 'Edit', name: 'Edit' }]
+                                                rowActions: [
+                                                    { label: 'Edit', name: 'Edit' },
+                                                    { label: 'Delete', name: 'Delete' }
+                                                ]
                                             },
                                         },
                                     ],
         MILESTONE_DATATABLE_COLUMNS : [
-                                        { label: 'Milestone Name', fieldName: 'Name', editable: true },
-                                        { label: 'Status', fieldName: 'Status__c', type: 'text', editable: false },
-                                        { label: 'Complete %', fieldName: 'Complete__c', type: 'percent', editable: false }
+                                        { label: 'Milestone Name', fieldName: 'Name'},
+                                        { label: 'Status', fieldName: 'Status__c', type: 'text'},
+                                        { label: 'Complete %', fieldName: 'Complete__c', type: 'percent',
+                                            cellAttributes: { alignment: 'left' }
+                                        },
+                                        {
+                                            type: 'action',
+                                            typeAttributes: {
+                                                rowActions: [
+                                                    { label: 'Edit', name: 'Edit' },
+                                                    { label: 'Delete', name: 'Delete' }
+                                                ]
+                                            },
+                                        },
                                     ],
         TODO_DATATABLE_COLUMNS : [
-                                    { label: 'To Do Name', fieldName: 'Name', editable: true },
-                                    { label: 'Status', fieldName: 'Status__c', type: 'text', editable: true },
-                                    { label: 'Due Date', fieldName: 'Due_Date__c', type: 'date', editable: true },
+                                    { label: 'To Do Name', fieldName: 'Name'},
+                                    { label: 'Status', fieldName: 'Status__c', type: 'text'},
+                                    { label: 'Due Date', fieldName: 'Due_Date__c', type: 'date'},
+                                    {
+                                        type: 'action',
+                                        typeAttributes: {
+                                            rowActions: [
+                                                { label: 'Edit', name: 'Edit' },
+                                                { label: 'Delete', name: 'Delete' }
+                                            ]
+                                        },
+                                    },
                                 ]
     }
  }
  
  export { getConstants };
- 

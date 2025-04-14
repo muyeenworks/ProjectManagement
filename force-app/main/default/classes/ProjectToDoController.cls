@@ -5,13 +5,12 @@ public with sharing class ProjectToDoController {
      */
     @AuraEnabled(cacheable=true)
     public static Integer getTodoCount(Id milestoneId){
-        try {
-            return [SELECT COUNT() FROM Project_To_Do__c WHERE Project_Milestone__c = :milestoneId WITH USER_MODE];
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
+        return [SELECT COUNT() FROM Project_To_Do__c WHERE Project_Milestone__c = :milestoneId WITH USER_MODE];
     }
     
+    /**
+     * @Description: This method is used to get the project to do list.
+     */
     @AuraEnabled(cacheable=true)
     public static List<Project_To_Do__c> getProjectToDoList(Id milestoneId,Integer offset){
         try {

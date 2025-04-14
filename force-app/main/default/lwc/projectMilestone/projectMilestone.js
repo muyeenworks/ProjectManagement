@@ -1,7 +1,7 @@
 import { LightningElement, wire } from 'lwc';
 import { refreshApex } from '@salesforce/apex';
 import { subscribe, MessageContext, unsubscribe, publish} from 'lightning/messageService';
-import { updateRecord } from 'lightning/uiRecordApi';
+import { deleteRecord } from 'lightning/uiRecordApi';
 import { showNotification } from "c/genericNotifications";
 import { getConstants } from 'c/projectConstants';
 import PRJ_LMS from '@salesforce/messageChannel/projectLMS__c';
@@ -13,6 +13,7 @@ const CONSTANTS = getConstants();
 const columns = CONSTANTS.MILESTONE_DATATABLE_COLUMNS;
 
 export default class ProjectMilestone extends LightningElement {
+    recordId;
     defaultMessage = CONSTANTS.DEFAULT_MILESTONE_MSG;
     headerValue;
     createFlag = false;
@@ -78,10 +79,7 @@ export default class ProjectMilestone extends LightningElement {
             const totalPages = Math.ceil(totalRecords / 5);
             this.options = [];
             for (let i = 1; i <= totalPages; i++) {
-                this.options.push({
-                    label: i,
-                    value: i
-                });
+                this.options.push({ label: i, value: i });
             }
         }
     }
@@ -89,6 +87,10 @@ export default class ProjectMilestone extends LightningElement {
     //event received from Child Component (createUpdateMilestone)
     handleClose() {
         this.newMilestoneClicked = false;
+        this.refreshRecords();
+    }
+
+    refreshRecords(){
         refreshApex(this.wiredMilestoneListResult);
         refreshApex(this.wiredMilestoneCountResult);
     }
@@ -115,7 +117,7 @@ export default class ProjectMilestone extends LightningElement {
                 this.data = undefined;
             }
         }else{
-            this.handleClose();
+            this.refreshRecords();
         }
         
     }
@@ -127,30 +129,6 @@ export default class ProjectMilestone extends LightningElement {
             unsubscribe(subscription);
         });
         this.subscriptions = [];
-    }
-
-    handleSave(event) {
-        this.showLoading = true;
-        this.saveDraftValues = event.detail.draftValues;
-        const recordInputs = this.saveDraftValues.slice().map(draft => {
-            const fields = Object.assign({}, draft);
-            return {
-                fields
-            };
-        });
-
-        // Updateing the records using the UiRecordAPi
-        const promises = recordInputs.map(recordInput => updateRecord(recordInput));
-        Promise.all(promises).then(res => {
-            showNotification(this, CONSTANTS.SUCCESS_TITLE, 'Records updated successfully!', CONSTANTS.SUCCESS);
-        }).catch(error => {
-            showNotification(this, CONSTANTS.ERROR_TITLE, error, CONSTANTS.ERROR);
-        }).finally(() => {
-            this.saveDraftValues = [];
-            this.showLoading = false;
-            refreshApex(this.wiredMilestoneListResult);
-            this.handlePublishMessage(undefined,'refresh');
-        });
     }
 
     // Method to publish the message
@@ -178,6 +156,32 @@ export default class ProjectMilestone extends LightningElement {
 
     handlePageChange(event) {
         this.offset = event.detail.value;
+    }
+
+        //To Handle Edit row action
+        handleRowAction(event) {
+            let recordId = event.detail.row.Id;
+            const actionName = event.detail.action.name;
+            this.recordId = recordId;
+            if (actionName === CONSTANTS.EDIT_TITLE) {
+                this.headerValue = CONSTANTS.UPDATE_TITLE + CONSTANTS.SPACE_VAL + CONSTANTS.MILESTONE;
+                this.createFlag = false;
+                this.newMilestoneClicked = true;
+            }else if(actionName === CONSTANTS.DELETE_TITLE){
+                this.deleteMilestone();
+            }
+        }
+
+    //handle Milestone Deletion
+    async deleteMilestone() {
+        try {
+            await deleteRecord(this.recordId);
+            showNotification(this,CONSTANTS.SUCCESS_TITLE, CONSTANTS.MILESTONE_DEL_MSG , CONSTANTS.SUCCESS);
+            this.refreshRecords();
+            this.handlePublishMessage(undefined,'rowAction');
+        } catch (error) {
+            showNotification(this,CONSTANTS.ERROR_TITLE, CONSTANTS.DELETE_PERMISSION_MISSING, CONSTANTS.ERROR);
+        }
     }
 
 }

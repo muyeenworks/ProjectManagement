@@ -11,9 +11,8 @@
             </template>
             <lightning-datatable key-field="Id"
                data={data} 
-               columns={columns} 
-               onsave={handleSave}
-               draft-values={saveDraftValues} 
+               columns={columns}
+               onrowaction={handleRowAction}
                max-row-selection="1">
             </lightning-datatable>
             <div class="slds-grid slds-grid_align-end slds-relative">
@@ -27,6 +26,6 @@
        </template>
     </lightning-card>
     <template lwc:if={newToDoClicked}>
-       <c-create-update-to-do header-value={headerValue} create-flag={createFlag} milestone-id={milestoneId} onclose={handleClose}></c-create-update-to-do>
+       <c-create-update-to-do header-value={headerValue} create-flag={createFlag} milestone-id={milestoneId} onclose={handleClose} record-id={recordId}></c-create-update-to-do>
     </template>
  </template>

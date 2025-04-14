@@ -1,8 +1,10 @@
 import { LightningElement, wire } from 'lwc';
+import { deleteRecord } from 'lightning/uiRecordApi';
 import { refreshApex } from '@salesforce/apex';
 import { getConstants } from 'c/projectConstants';
+import { showNotification } from "c/genericNotifications";
 import { publish, MessageContext, subscribe,  unsubscribe } from 'lightning/messageService';
-import SEND_PRJ_ID from '@salesforce/messageChannel/projectLMS__c';
+import PRJ_TOP_TO_BOTT_LMS from '@salesforce/messageChannel/projectLMS__c';
 import PRJ_BOTTOM_UP_LMS from '@salesforce/messageChannel/projectBottomUpLMS__c';
 import getProjectCount from '@salesforce/apex/ProjectCompController.projectCount';
 import getProjectList from '@salesforce/apex/ProjectCompController.getProjects';
@@ -28,7 +30,7 @@ export default class ProjectComp extends LightningElement {
 
     //Getter to show default message in case there are no Projects created or accessible to the current user.
     get showDefaultMessage() {
-        return this.data.length ? false : true;
+        return this.data && this.data.length ? false : true;
     }
 
     // Subscribe when the component loads
@@ -36,6 +38,7 @@ export default class ProjectComp extends LightningElement {
         this.subscribeToChannel(PRJ_BOTTOM_UP_LMS);
     }
 
+    //To Subscribe to a message channel
     subscribeToChannel(messageChannel) {
         if (this.messageContext) {
             const subscription = subscribe(
@@ -44,12 +47,6 @@ export default class ProjectComp extends LightningElement {
                 (message) => this.handleMessage(message)
             );
             this.subscriptions.push(subscription);
-        }
-    }
-
-    // Handle incoming messages
-    handleMessage(message,channel) {{
-            this.handleClose();
         }
     }
 
@@ -94,8 +91,7 @@ export default class ProjectComp extends LightningElement {
     handleClose() {
         this.newProjectClicked = false;
         this.recordId = undefined;
-        refreshApex(this.wiredProjectListResult);
-        refreshApex(this.wiredProjectCountResult);
+        this.refreshRecords();
     }
 
     //When a particular Project is selected
@@ -119,24 +115,53 @@ export default class ProjectComp extends LightningElement {
             this.defaultHeaderValue = CONSTANTS.UPDATE_TITLE + CONSTANTS.SPACE_VAL + CONSTANTS.PROJECT;
             this.createFlag = false;
             this.newProjectClicked = true;
+        }else if(actionName === CONSTANTS.DELETE_TITLE){
+            this.deleteProject();
         }
+    }
+
+    //handle Project Deletion
+    async deleteProject() {
+        try {
+            await deleteRecord(this.recordId);
+            showNotification(this,CONSTANTS.SUCCESS_TITLE, CONSTANTS.PROJECT_DEL_MSG , CONSTANTS.SUCCESS);
+            this.refreshRecords();
+            this.handlePublishMessage(undefined);
+        } catch (error) {
+            console.log(error);
+            showNotification(this,CONSTANTS.ERROR_TITLE, CONSTANTS.DELETE_PERMISSION_MISSING, CONSTANTS.ERROR);
+        }
+    }
+
+    // Handle incoming messages
+    handleMessage(message,channel) {{
+        this.refreshRecords();
+    }
+}
+
+    //To Refresh Records
+    refreshRecords(){
+        refreshApex(this.wiredProjectListResult);
+        refreshApex(this.wiredProjectCountResult);
     }
 
     // Method to publish the message
     handlePublishMessage(projectId) {
-        const payload = {
-            projectId: projectId,
-            milestoneId: undefined
-        };
-        publish(
-            this.messageContext,
-            SEND_PRJ_ID,
-            payload
-        );
+        const payload = { projectId: projectId, milestoneId: undefined };
+        publish(this.messageContext,PRJ_TOP_TO_BOTT_LMS,payload);
     }
 
     //Handle page change event coming from Child component(pagination)
     handlePageChange(event) {
         this.offset = event.detail.value;
+    }
+
+    // Unsubscribe when component is destroyed (prevents memory leaks)
+    disconnectedCallback() {
+        // Unsubscribe from all channels when component is destroyed
+        this.subscriptions.forEach(subscription => {
+            unsubscribe(subscription);
+        });
+        this.subscriptions = [];
     }
 }

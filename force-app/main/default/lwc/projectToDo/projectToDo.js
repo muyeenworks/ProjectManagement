@@ -2,16 +2,17 @@ import { LightningElement, wire, api} from 'lwc';
 import { refreshApex } from '@salesforce/apex';
 import { getConstants } from 'c/projectConstants';
 import { subscribe, MessageContext, unsubscribe, publish } from 'lightning/messageService';
+import { deleteRecord } from 'lightning/uiRecordApi';
 import PRJ_LMS from '@salesforce/messageChannel/projectLMS__c';
 import PRJ_BOTTOM_UP_LMS from '@salesforce/messageChannel/projectBottomUpLMS__c';
 import getToDoRecords from '@salesforce/apex/ProjectToDoController.getProjectToDoList';
 import getTodoCount from '@salesforce/apex/ProjectToDoController.getTodoCount';
-import { updateRecord } from 'lightning/uiRecordApi';
 import { showNotification } from "c/genericNotifications";
 
 const CONSTANTS = getConstants();
 
 export default class ProjectToDo extends LightningElement {
+    recordId;
     defaultMessage = CONSTANTS.DEFAULT_TODO_MSG;
     headerValue = CONSTANTS.NEW_TITLE + CONSTANTS.SPACE_VAL + CONSTANTS.TO_DO;
     columns = CONSTANTS.TODO_DATATABLE_COLUMNS;
@@ -84,10 +85,7 @@ export default class ProjectToDo extends LightningElement {
             const totalPages = Math.ceil(totalRecords / 5);
             this.options = [];
             for (let i = 1; i <= totalPages; i++) {
-                this.options.push({
-                    label: i,
-                    value: i
-                });
+                this.options.push({ label: i, value: i });
             }
         }
     }
@@ -98,12 +96,43 @@ export default class ProjectToDo extends LightningElement {
         this.newToDoClicked = true;
     }
 
+     //To Handle Edit row action
+     handleRowAction(event) {
+        let recordId = event.detail.row.Id;
+        const actionName = event.detail.action.name;
+        this.recordId = recordId;
+        if (actionName === CONSTANTS.EDIT_TITLE) {
+            this.headerValue = CONSTANTS.UPDATE_TITLE + CONSTANTS.SPACE_VAL + CONSTANTS.TO_DO;
+            this.createFlag = false;
+            this.newToDoClicked = true;
+        }else if(actionName === CONSTANTS.DELETE_TITLE){
+            this.deleteToDo();
+        }
+    }
+
+    //handle Milestone Deletion
+        async deleteToDo() {
+            try {
+                await deleteRecord(this.recordId);
+                showNotification(this,CONSTANTS.SUCCESS_TITLE, CONSTANTS.TO_DO_DEL_MSG , CONSTANTS.SUCCESS);
+                this.refreshRecords();
+                this.handlePublishMessage();
+            } catch (error) {
+                showNotification(this,CONSTANTS.ERROR_TITLE, CONSTANTS.DELETE_PERMISSION_MISSING, CONSTANTS.ERROR);
+            }
+        }
+
     //new To Do Form Closed
     handleClose() {
         this.newToDoClicked = false;
+        this.refreshRecords();
+        this.handlePublishMessage();
+    }
+
+    //To Refresh Records
+    refreshRecords(){
         refreshApex(this.wiredToDoListResult);
         refreshApex(this.wiredToDoCountResult);
-        this.handlePublishMessage();
     }
 
     //LMS Message Received
@@ -111,50 +140,20 @@ export default class ProjectToDo extends LightningElement {
         this.milestoneId = message.milestoneId;
     }
 
-    //To save edited datatable
-    handleSave(event) {
-        this.showLoading = true;
-        this.saveDraftValues = event.detail.draftValues;
-        const recordInputs = this.saveDraftValues.slice().map(draft => {
-            const fields = Object.assign({}, draft);
-            return { fields };
-        });
-
-        // Updateing the records using the UiRecordAPi
-        const promises = recordInputs.map(recordInput => updateRecord(recordInput));
-        Promise.all(promises).then(res => {
-            showNotification(this, CONSTANTS.SUCCESS_TITLE, CONSTANTS.RECORDS_UPDATED_MESSAGE, CONSTANTS.SUCCESS);
-        }).catch(error => {
-            showNotification(this, CONSTANTS.ERROR_TITLE, error, CONSTANTS.ERROR);
-        }).finally(() => {
-            this.saveDraftValues = [];
-            this.showLoading = false;
-            refreshApex(this.wiredToDoListResult);
-            refreshApex(this.wiredToDoCountResult);
-            this.handlePublishMessage();
-        });
-    }
-
     //Invoked from Child component(pagination)
     handlePageChange(event) {
         this.offset = event.detail.value;
+    }
+
+    // Method to publish the message
+    handlePublishMessage() {
+        const payload = { toDoUpdateFlag : true };
+        publish(this.messageContext,PRJ_BOTTOM_UP_LMS,payload);
     }
 
     //To unsubscribe the channel post component close
     disconnectedCallback() {
         unsubscribe(this.subscription);
         this.subscription = null;
-    }
-
-    // Method to publish the message
-    handlePublishMessage() {
-        const payload = {
-            toDoUpdateFlag : true
-        };
-        publish(
-            this.messageContext,
-            PRJ_BOTTOM_UP_LMS,
-            payload
-        );
     }
 }

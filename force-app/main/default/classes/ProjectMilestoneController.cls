@@ -16,7 +16,10 @@ public with sharing class ProjectMilestoneController {
             throw new AuraHandledException(e.getMessage());
         }
     }
-    
+
+    /**
+     * @Description: This method is used to get the project milestones.
+     */
     @AuraEnabled(cacheable=true)
     public static List<Project_Milestone__c> getProjectMilestoneList(Id projectId,Integer offset){
         try {

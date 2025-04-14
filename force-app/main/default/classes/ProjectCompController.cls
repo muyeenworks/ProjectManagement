@@ -11,7 +11,7 @@ public with sharing class ProjectCompController {
     @AuraEnabled(cacheable=true)
     public static Integer projectCount(){
         try {
-            return [SELECT COUNT() FROM Project__c WITH SECURITY_ENFORCED];
+            return [SELECT COUNT() FROM Project__c WITH USER_MODE];
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());
         }

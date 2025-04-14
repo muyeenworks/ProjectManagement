@@ -13,8 +13,7 @@
             <lightning-datatable key-field="Id"
                data={data} 
                columns={columns} 
-               onsave={handleSave}
-               draft-values={saveDraftValues}
+               onrowaction={handleRowAction}
                onrowselection={handleRowSelection} 
                max-row-selection="1">
             </lightning-datatable>
@@ -27,6 +26,6 @@
        </template>
     </lightning-card>
     <template lwc:if={newMilestoneClicked}>
-       <c-create-update-milestone header-value={headerValue} create-flag={createFlag} project-id={projectId} onclose={handleClose}></c-create-update-milestone>
+       <c-create-update-milestone header-value={headerValue} create-flag={createFlag} project-id={projectId} onclose={handleClose} record-id={recordId}></c-create-update-milestone>
     </template>
  </template>
