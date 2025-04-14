@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
-   <masterLabel>ProjectMessageChannelBottomUp</masterLabel>
-   <isExposed>true</isExposed>
-   <description>This Lightning Message Channel sends information from Project To-Do and Project Milestone to Project</description>
-
-   <lightningMessageFields>
-       <fieldName>toDoUpdateFlag</fieldName>
-       <description>message To Send</description>
-   </lightningMessageFields>
-   <lightningMessageFields>
-       <fieldName>milestoneUpdateFlag</fieldName>
-       <description>message To Send</description>
-   </lightningMessageFields>
+    <description>This Lightning Message Channel sends information from Project To-Do and Project Milestone to Project</description>
+    <isExposed>true</isExposed>
+    <lightningMessageFields>
+        <description>message To Send</description>
+        <fieldName>toDoUpdateFlag</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <description>message To Send</description>
+        <fieldName>milestoneUpdateFlag</fieldName>
+    </lightningMessageFields>
+    <masterLabel>ProjectMessageChannelBottomUp</masterLabel>
 </LightningMessageChannel>

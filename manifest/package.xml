@@ -61,6 +61,10 @@
 		<name>LightningComponentBundle</name>
 	</types>
 	<types>
+		<members>*</members>
+		<name>LightningMessageChannel</name>
+	</types>
+	<types>
 		<members>Project_Management_Admin</members>
 		<members>Project_Management_Regular</members>
 		<name>PermissionSet</name>
