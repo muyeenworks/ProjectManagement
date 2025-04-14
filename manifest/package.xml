@@ -43,6 +43,11 @@
 		<name>CustomTab</name>
 	</types>
 	<types>
+		<members>Project_Management_Home</members>
+		<members>Project_Management_UtilityBar</members>
+		<name>FlexiPage</name>
+	</types>
+	<types>
 		<members>Project_After_Update</members>
 		<members>Project_Milestone_After_Insert_Update</members>
 		<members>Project_To_Do_After_Insert_Update</members>
